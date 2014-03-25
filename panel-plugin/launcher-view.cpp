@@ -76,6 +76,7 @@ LauncherView::LauncherView(Window* window) :
 	g_signal_connect_slot(m_view, "button-release-event", &LauncherView::on_button_release_event, this);
 	g_signal_connect_slot(m_view, "drag-data-get", &LauncherView::on_drag_data_get, this);
 	g_signal_connect_slot(m_view, "drag-end", &LauncherView::on_drag_end, this);
+	g_signal_connect_slot(m_view, "row-activated", &LauncherView::on_row_activated, this);
 	set_reorderable(false);
 }
 
@@ -363,6 +364,25 @@ void LauncherView::on_drag_end(GtkWidget*, GdkDragContext*)
 		m_launcher_dragged = false;
 	}
 	m_pressed_launcher = NULL;
+}
+
+//-----------------------------------------------------------------------------
+
+void LauncherView::on_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column)
+{
+	if (m_pressed_launcher)
+	{
+		return;
+	}
+
+	if (gtk_tree_view_row_expanded(tree_view, path))
+	{
+		gtk_tree_view_collapse_row(tree_view, path);
+	}
+	else
+	{
+		gtk_tree_view_expand_row(tree_view, path, false);
+	}
 }
 
 //-----------------------------------------------------------------------------

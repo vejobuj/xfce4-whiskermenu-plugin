@@ -76,6 +76,7 @@ private:
 	gboolean on_button_release_event(GtkWidget*, GdkEvent* event);
 	void on_drag_data_get(GtkWidget*, GdkDragContext*, GtkSelectionData* data, guint info, guint);
 	void on_drag_end(GtkWidget*, GdkDragContext*);
+	void on_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column);
 
 private:
 	Window* m_window;

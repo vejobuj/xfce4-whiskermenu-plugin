@@ -1,0 +1,62 @@
+xfce4-whiskermenu-plugin (1.4.0-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Graeme Gott <graeme@gottcode.org>  Wed, 25 Jun 2014 09:40:31 +0000
+
+xfce4-whiskermenu-plugin (1.3.2-1) unstable; urgency=medium
+
+  [ Jackson Doak ]
+  * New upstream release
+
+ -- Yves-Alexis Perez <corsac@debian.org>  Tue, 18 Mar 2014 21:55:14 +0100
+
+xfce4-whiskermenu-plugin (1.3.1-1) unstable; urgency=medium
+
+  [ Jackson Doak ]
+  * New upstream release
+
+ -- Yves-Alexis Perez <corsac@debian.org>  Fri, 17 Jan 2014 21:53:17 +0100
+
+xfce4-whiskermenu-plugin (1.3.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control:
+    - Bump standards-version to 3.9.5
+
+ -- Jackson Doak <noskcaj@ubuntu.com>  Sun, 29 Dec 2013 21:15:12 +0100
+
+xfce4-whiskermenu-plugin (1.2.2-1) unstable; urgency=medium
+
+  [ Jackson Doak ]
+  * New upstream release
+
+  [ Yves-Alexis Perez ]
+  * debian/control:
+    - Add Jackson Doak to Uploaders.
+
+ -- Jackson Doak <noskcaj@ubuntu.com>  Thu, 05 Dec 2013 22:02:50 +0100
+
+xfce4-whiskermenu-plugin (1.2.1-1) unstable; urgency=medium
+
+  [ Jackson Doak ]
+  * New upstream release
+
+ -- Yves-Alexis Perez <corsac@debian.org>  Fri, 29 Nov 2013 22:01:33 +0100
+
+xfce4-whiskermenu-plugin (1.2.0-1) unstable; urgency=low
+
+  [ Jackson Doak ]
+  * New upstream release
+  * Drop manpage, included upstream
+  * debian/docs: Install NEWS as the changelog, don't install CREDITS
+  * debian/control: Remove bad character from desciption
+
+ -- Yves-Alexis Perez <corsac@debian.org>  Sat, 09 Nov 2013 00:31:47 +0100
+
+xfce4-whiskermenu-plugin (1.1.1-1) unstable; urgency=low
+
+  [ Mateusz Łukasik ]
+  * Initial release.                                            closes: #715463
+
+ -- Yves-Alexis Perez <corsac@debian.org>  Wed, 09 Oct 2013 23:12:35 +0200

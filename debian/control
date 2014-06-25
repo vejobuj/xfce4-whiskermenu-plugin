@@ -1,0 +1,26 @@
+Source: xfce4-whiskermenu-plugin
+Section: xfce
+Priority: optional
+Maintainer: Debian Xfce Maintainers <pkg-xfce-devel@lists.alioth.debian.org>
+Uploaders: Yves-Alexis Perez <corsac@debian.org>,
+ Lionel Le Folgoc <mrpouit@gmail.com>,
+ Jackson Doak <noskcaj@ubuntu.com>,
+ Graeme Gott <graeme@gottcode.org>
+Build-Depends: debhelper (>= 9), cmake, pkg-config, gettext,
+    hicolor-icon-theme, libexo-1-dev, libgarcon-1-0-dev, libgtk2.0-dev,
+    libxfce4ui-1-dev, libxfce4util-dev, xfce4-panel-dev
+Standards-Version: 3.9.5
+Homepage: http://gottcode.org/xfce4-whiskermenu-plugin/
+Vcs-Svn: svn://anonscm.debian.org/pkg-xfce/goodies/trunk/xfce4-whiskermenu-plugin-debian/
+Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-xfce/goodies/trunk/xfce4-whiskermenu-plugin-debian/
+
+Package: xfce4-whiskermenu-plugin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Alternate menu plugin for the Xfce desktop environment
+ Whisker Menu is an alternate application launcher for Xfce. When you open it
+ you are shown a list of applications you have marked as favorites. You can
+ browse through all of your installed applications by clicking on the category
+ buttons on the side. Top level catagories make browsing fast, and simple to
+ switch between. Additionally, Whisker Menu keeps a list of the last ten
+ applications that you've launched from it.

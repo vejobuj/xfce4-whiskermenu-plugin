@@ -1,0 +1,3 @@
+version=3
+opts=filenamemangle=s#.*/v(.*)#xfce4-whiskermenu-plugin-$1# \
+http://githubredir.debian.net/github/gottcode/xfce4-whiskermenu-plugin/v(.*).tar.gz

@@ -104,7 +104,7 @@ private:
 	GtkBox* m_panels_box;
 	GtkBox* m_sidebar_box;
 
-	GtkLabel* m_username;
+//	GtkLabel* m_username;
 	ResizerWidget* m_resizer;
 
 	GtkAlignment* m_commands_align;

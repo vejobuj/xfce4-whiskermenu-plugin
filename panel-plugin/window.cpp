@@ -91,17 +91,17 @@ Window::Window() :
 	gtk_box_pack_start(m_window_box, m_window_contents, true, true, 0);
 
 	// Create the username label
-	const gchar* name = g_get_real_name();
-	if (g_strcmp0(name, "Unknown") == 0)
-	{
-		name = g_get_user_name();
-	}
-	gchar* username = g_markup_printf_escaped("<b><big>%s</big></b>", name);
-	m_username = GTK_LABEL(gtk_label_new(NULL));
-	gtk_label_set_markup(m_username, u_s_e_r_n_a_m_e);
-	gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
-	gtk_misc_set_padding(GTK_MISC(m_username), 10, 0);
-	g_free(username);
+//	const gchar* name = g_get_real_name();
+//	if (g_strcmp0(name, "Unknown") == 0)
+//	{
+//		name = g_get_user_name();
+//	}
+//	gchar* username = g_markup_printf_escaped("<b><big>%s</big></b>", name);
+//	m_username = GTK_LABEL(gtk_label_new(NULL));
+//	gtk_label_set_markup(m_username, username);
+//	gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
+//	gtk_misc_set_padding(GTK_MISC(m_username), 10, 0);
+//	g_free(username);
 
 	// Create action buttons
 	m_commands_button[0] = wm_settings->command[Settings::CommandSettings]->get_button();

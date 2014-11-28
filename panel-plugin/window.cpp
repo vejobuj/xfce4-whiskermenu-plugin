@@ -486,7 +486,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 			}
 
 //			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 1);
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 0);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 1);
 
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_search_entry), 1);
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_commands_align), 0);

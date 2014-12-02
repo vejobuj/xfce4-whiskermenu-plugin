@@ -100,6 +100,7 @@ Window::Window() :
 //	m_username = GTK_LABEL(gtk_label_new(NULL));
 //	gtk_label_set_markup(m_username, username);
 //	gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
+	gtk_misc_set_alignment(GTK_MISC(""), 0.0f, 0.5f);
 //	gtk_misc_set_padding(GTK_MISC(m_username), 10, 0);
 //	g_free(username);
 
@@ -462,6 +463,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 		if (m_layout_left && m_layout_commands_alternate)
 		{
 //			gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
+//			gtk_misc_set_alignment(GTK_MISC(""), 0.0f, 0.5f);
 
 			gtk_alignment_set(m_commands_align, 1, 0, 0, 0);
 			for (int i = 0; i < 4; ++i)
@@ -470,6 +472,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 			}
 
 //			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 0);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(""), 0);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 1);
 
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_search_entry), 0);
@@ -478,6 +481,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 		else if (m_layout_commands_alternate)
 		{
 //			gtk_misc_set_alignment(GTK_MISC(m_username), 1.0f, 0.5f);
+			gtk_misc_set_alignment(GTK_MISC(""), 1.0f, 0.5f);
 
 			gtk_alignment_set(m_commands_align, 0, 0, 0, 0);
 			for (int i = 0; i < 4; ++i)
@@ -486,7 +490,8 @@ void Window::show(GtkWidget* parent, bool horizontal)
 			}
 
 //			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 1);
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 1);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(""), 1);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 0);
 
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_search_entry), 1);
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_commands_align), 0);
@@ -494,6 +499,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 		else if (m_layout_left)
 		{
 //			gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
+			gtk_misc_set_alignment(GTK_MISC(""), 0.0f, 0.5f);
 
 			gtk_alignment_set(m_commands_align, 1, 0, 0, 0);
 			for (int i = 0; i < 4; ++i)
@@ -502,12 +508,14 @@ void Window::show(GtkWidget* parent, bool horizontal)
 			}
 
 //			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 0);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(""), 0);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_commands_align), 1);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 2);
 		}
 		else
 		{
 //			gtk_misc_set_alignment(GTK_MISC(m_username), 1.0f, 0.5f);
+			gtk_misc_set_alignment(GTK_MISC(""), 1.0f, 0.5f);
 
 			gtk_alignment_set(m_commands_align, 0, 0, 0, 0);
 			for (int i = 0; i < 4; ++i)
@@ -516,6 +524,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 			}
 
 //			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 2);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(""), 2);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_commands_align), 1);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 0);
 		}

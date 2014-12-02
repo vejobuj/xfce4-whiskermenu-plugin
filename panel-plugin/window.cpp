@@ -168,8 +168,8 @@ Window::Window() :
 
 	// Create box for packing username, commands, and resize widget
 	m_title_box = GTK_BOX(gtk_hbox_new(false, 0));
-//	gtk_box_pack_start(m_vbox, GTK_WIDGET(m_title_box), false, false, 0);
-	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_username), true, true, 0);
+	gtk_box_pack_start(m_vbox, GTK_WIDGET(m_title_box), false, false, 0);
+//	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_username), true, true, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_commands_align), false, false, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_resizer->get_widget()), false, false, 0);
 

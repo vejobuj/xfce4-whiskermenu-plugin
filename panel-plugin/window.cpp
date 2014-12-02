@@ -171,6 +171,7 @@ Window::Window() :
 	m_title_box = GTK_BOX(gtk_hbox_new(false, 0));
 	gtk_box_pack_start(m_vbox, GTK_WIDGET(m_title_box), false, false, 0);
 //	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_username), true, true, 0);
+	gtk_box_pack_start(m_title_box, GTK_WIDGET(""), true, true, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_commands_align), false, false, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_resizer->get_widget()), false, false, 0);
 
@@ -463,7 +464,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 		if (m_layout_left && m_layout_commands_alternate)
 		{
 //			gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
-//			gtk_misc_set_alignment(GTK_MISC(""), 0.0f, 0.5f);
+			gtk_misc_set_alignment(GTK_MISC(""), 0.0f, 0.5f);
 
 			gtk_alignment_set(m_commands_align, 1, 0, 0, 0);
 			for (int i = 0; i < 4; ++i)

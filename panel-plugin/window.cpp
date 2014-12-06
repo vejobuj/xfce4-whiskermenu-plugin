@@ -224,6 +224,11 @@ Window::Window() :
 	// Resize to last known size
 	gtk_window_set_default_size(m_window, m_geometry.width, m_geometry.height);
 
+	gtk_widget_set_app_paintable(GTK_WIDGET(m_window), true);
+	g_signal_connect_slot(m_window, "expose-event", &Window::expose_event, this);
+	g_signal_connect_slot(m_window, "screen-changed", &Window::screen_changed_event, this);
+	this->screen_changed_event(GTK_WIDGET(m_window), NULL);
+
 	g_object_ref_sink(m_window);
 
 	// Start loading applications immediately
@@ -780,6 +785,43 @@ gboolean Window::on_map_event(GtkWidget*, GdkEvent*)
 	gtk_widget_grab_focus(GTK_WIDGET(m_search_entry));
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+
+gboolean supports_alpha = FALSE;
+
+void Window::screen_changed_event(GtkWidget *widget, GdkScreen *){
+	GdkScreen *screen = gtk_widget_get_screen(widget);
+	GdkColormap *colormap = gdk_screen_get_rgba_colormap(screen);
+	if (!colormap){
+		colormap = gdk_screen_get_rgb_colormap(screen);
+	} else {
+		supports_alpha = TRUE;
+	}
+	gtk_widget_set_colormap(widget, colormap);
+}
+
+//-----------------------------------------------------------------------------
+
+gboolean Window::expose_event(GtkWidget *widget, GdkEventExpose *){
+	if (!gtk_widget_get_realized(widget))
+		gtk_widget_realize(widget);
+
+	GtkStyle *style = gtk_widget_get_style(widget);
+	if (style == NULL)
+		return FALSE;
+	GdkColor color = style->bg[GTK_STATE_NORMAL];
+
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	if (supports_alpha)
+		cairo_set_source_rgba(cr, ((double)color.red)/65535.0, ((double)color.green)/65535.0, ((double)color.blue)/65535.0, 0.58);
+	else
+		cairo_set_source_rgb(cr, ((double)color.red)/65535.0, ((double)color.green)/65535.0, ((double)color.blue)/65535.0);
+	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_paint(cr);
+	cairo_destroy(cr);
+	return FALSE;
 }
 
 //-----------------------------------------------------------------------------

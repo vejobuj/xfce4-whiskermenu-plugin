@@ -81,6 +81,8 @@ private:
 	gboolean on_key_press_event_after(GtkWidget* widget, GdkEvent* event);
 	gboolean on_map_event(GtkWidget*, GdkEvent*);
 	gboolean on_configure_event(GtkWidget*, GdkEvent* event);
+	void screen_changed_event(GtkWidget *widget, GdkScreen *old_screen);
+	gboolean expose_event(GtkWidget *widget, GdkEventExpose *event);
 	void favorites_toggled();
 	void recent_toggled();
 	void category_toggled();

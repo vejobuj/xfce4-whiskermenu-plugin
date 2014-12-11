@@ -28,6 +28,7 @@ namespace WhiskerMenu
 class ApplicationsPage;
 class FavoritesPage;
 class Page;
+class ProfilePicture;
 class ResizerWidget;
 class RecentPage;
 class SearchPage;
@@ -81,6 +82,8 @@ private:
 	gboolean on_key_press_event_after(GtkWidget* widget, GdkEvent* event);
 	gboolean on_map_event(GtkWidget*, GdkEvent*);
 	gboolean on_configure_event(GtkWidget*, GdkEvent* event);
+	void on_screen_changed_event(GtkWidget* widget, GdkScreen* old_screen);
+	gboolean on_expose_event(GtkWidget* widget, GdkEventExpose* event);
 	void favorites_toggled();
 	void recent_toggled();
 	void category_toggled();
@@ -104,6 +107,7 @@ private:
 	GtkBox* m_panels_box;
 	GtkBox* m_sidebar_box;
 
+	ProfilePicture* m_profilepic;
 	GtkLabel* m_username;
 	ResizerWidget* m_resizer;
 
@@ -128,6 +132,8 @@ private:
 	bool m_layout_bottom;
 	bool m_layout_search_alternate;
 	bool m_layout_commands_alternate;
+	bool m_supports_alpha;
+	int m_opacity;
 };
 
 }

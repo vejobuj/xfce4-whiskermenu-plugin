@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Graeme Gott <graeme@gottcode.org>
+ * Copyright (C) 2013, 2104 Graeme Gott <graeme@gottcode.org>
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@ static const char* const settings_command[Settings::CountCommands][2] = {
 	{ "command-lockscreen", "show-command-lockscreen" },
 	{ "command-switchuser", "show-command-switchuser" },
 	{ "command-logout",     "show-command-logout"     },
-	{ "command-menueditor", "show-command-menueditor" }
+	{ "command-menueditor", "show-command-menueditor" },
+	{ "command-profile",    "show-command-profile"    }
 };
 
 //-----------------------------------------------------------------------------
@@ -105,7 +106,8 @@ Settings::Settings() :
 	position_categories_alternate(false),
 
 	menu_width(400),
-	menu_height(500)
+	menu_height(500),
+	menu_opacity(100)
 {
 	favorites.push_back("exo-terminal-emulator.desktop");
 	favorites.push_back("exo-file-manager.desktop");
@@ -117,6 +119,7 @@ Settings::Settings() :
 	command[CommandSwitchUser] = new Command("system-users", _("Switch _Users"), "dm-tool switch-to-greeter", _("Failed to switch users."));
 	command[CommandLogOut] = new Command("system-log-out", _("Log _Out"), "xfce4-session-logout", _("Failed to log out."));
 	command[CommandMenuEditor] = new Command("xfce4-menueditor", _("_Edit Applications"), "menulibre", _("Failed to launch menu editor."));
+	command[CommandProfile] = new Command("avatar-default", _("Edit _Profile"), "mugshot", _("Failed to edit profile."));
 
 	search_actions.push_back(new SearchAction(_("Man Pages"), "#", "exo-open --launch TerminalEmulator man %s", false, true));
 	search_actions.push_back(new SearchAction(_("Wikipedia"), "!w", "exo-open --launch WebBrowser https://en.wikipedia.org/wiki/%u", false, true));
@@ -186,6 +189,7 @@ void Settings::load(char* file)
 
 	menu_width = std::max(300, xfce_rc_read_int_entry(rc, "menu-width", menu_width));
 	menu_height = std::max(400, xfce_rc_read_int_entry(rc, "menu-height", menu_height));
+	menu_opacity = std::min(100, std::max(0, xfce_rc_read_int_entry(rc, "menu-opacity", menu_height)));
 
 	for (int i = 0; i < CountCommands; ++i)
 	{
@@ -281,6 +285,7 @@ void Settings::save(char* file)
 
 	xfce_rc_write_int_entry(rc, "menu-width", menu_width);
 	xfce_rc_write_int_entry(rc, "menu-height", menu_height);
+	xfce_rc_write_int_entry(rc, "menu-opacity", menu_opacity);
 
 	for (int i = 0; i < CountCommands; ++i)
 	{

@@ -21,6 +21,7 @@
 #include "command.h"
 #include "favorites-page.h"
 #include "launcher-view.h"
+#include "profile-picture.h"
 #include "recent-page.h"
 #include "resizer-widget.h"
 #include "search-page.h"
@@ -38,12 +39,14 @@ using namespace WhiskerMenu;
 
 //-----------------------------------------------------------------------------
 
-Window::Window() :
+WhiskerMenu::Window::Window() :
 	m_window(NULL),
 	m_layout_left(true),
 	m_layout_bottom(true),
 	m_layout_search_alternate(false),
-	m_layout_commands_alternate(false)
+	m_layout_commands_alternate(false),
+	m_supports_alpha(false),
+	m_opacity(wm_settings->menu_opacity)
 {
 	m_geometry.x = 0;
 	m_geometry.y = 0;
@@ -90,6 +93,9 @@ Window::Window() :
 	gtk_frame_set_shadow_type(GTK_FRAME(m_window_contents), GTK_SHADOW_OUT);
 	gtk_box_pack_start(m_window_box, m_window_contents, true, true, 0);
 
+	// Create the profile picture
+	m_profilepic = new ProfilePicture(this);
+
 	// Create the username label
 	const gchar* name = g_get_real_name();
 	if (g_strcmp0(name, "Unknown") == 0)
@@ -100,7 +106,6 @@ Window::Window() :
 	m_username = GTK_LABEL(gtk_label_new(NULL));
 	gtk_label_set_markup(m_username, username);
 	gtk_misc_set_alignment(GTK_MISC(m_username), 0.0f, 0.5f);
-	gtk_misc_set_padding(GTK_MISC(m_username), 10, 0);
 	g_free(username);
 
 	// Create action buttons
@@ -169,6 +174,7 @@ Window::Window() :
 	// Create box for packing username, commands, and resize widget
 	m_title_box = GTK_BOX(gtk_hbox_new(false, 0));
 	gtk_box_pack_start(m_vbox, GTK_WIDGET(m_title_box), false, false, 0);
+	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_profilepic->get_widget()), false, false, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_username), true, true, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_commands_align), false, false, 0);
 	gtk_box_pack_start(m_title_box, GTK_WIDGET(m_resizer->get_widget()), false, false, 0);
@@ -224,6 +230,14 @@ Window::Window() :
 	// Resize to last known size
 	gtk_window_set_default_size(m_window, m_geometry.width, m_geometry.height);
 
+	// Handle transparency
+	gtk_widget_set_app_paintable(GTK_WIDGET(m_sidebar_box), true);
+	g_signal_connect_slot(m_sidebar_box, "expose-event", &Window::on_expose_event, this);
+	gtk_widget_set_app_paintable(GTK_WIDGET(m_window), true);
+	g_signal_connect_slot(m_window, "expose-event", &Window::on_expose_event, this);
+	g_signal_connect_slot(m_window, "screen-changed", &Window::on_screen_changed_event, this);
+	on_screen_changed_event(GTK_WIDGET(m_window), NULL);
+
 	g_object_ref_sink(m_window);
 
 	// Start loading applications immediately
@@ -233,20 +247,22 @@ Window::Window() :
 
 //-----------------------------------------------------------------------------
 
-Window::~Window()
+WhiskerMenu::Window::~Window()
 {
 	delete m_applications;
 	delete m_search_results;
 	delete m_recent;
 	delete m_favorites;
 
+	delete m_profilepic;
 	delete m_resizer;
+
 	g_object_unref(m_window);
 }
 
 //-----------------------------------------------------------------------------
 
-void Window::hide()
+void WhiskerMenu::Window::hide()
 {
 	gdk_pointer_ungrab(gtk_get_current_event_time());
 
@@ -262,8 +278,15 @@ void Window::hide()
 
 //-----------------------------------------------------------------------------
 
-void Window::show(GtkWidget* parent, bool horizontal)
+void WhiskerMenu::Window::show(GtkWidget* parent, bool horizontal)
 {
+	// Handle change in opacity
+	if (wm_settings->menu_opacity != m_opacity)
+	{
+		m_opacity = wm_settings->menu_opacity;
+		on_screen_changed_event(GTK_WIDGET(m_window), NULL);
+	}
+
 	// Make sure icon sizes are correct
 	m_favorites_button->reload_icon_size();
 	m_recent_button->reload_icon_size();
@@ -469,8 +492,9 @@ void Window::show(GtkWidget* parent, bool horizontal)
 				gtk_box_reorder_child(m_commands_box, m_commands_button[i], i);
 			}
 
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 0);
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 1);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_profilepic->get_widget()), 0);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 1);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 2);
 
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_search_entry), 0);
 			gtk_box_reorder_child(m_search_box, GTK_WIDGET(m_commands_align), 1);
@@ -485,6 +509,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 				gtk_box_reorder_child(m_commands_box, m_commands_button[i], 3 - i);
 			}
 
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_profilepic->get_widget()), 2);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 1);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 0);
 
@@ -501,9 +526,10 @@ void Window::show(GtkWidget* parent, bool horizontal)
 				gtk_box_reorder_child(m_commands_box, m_commands_button[i], i);
 			}
 
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 0);
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_commands_align), 1);
-			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 2);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_profilepic->get_widget()), 0);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 1);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_commands_align), 2);
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 3);
 		}
 		else
 		{
@@ -515,6 +541,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 				gtk_box_reorder_child(m_commands_box, m_commands_button[i], 3 - i);
 			}
 
+			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_profilepic->get_widget()), 3);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_username), 2);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_commands_align), 1);
 			gtk_box_reorder_child(m_title_box, GTK_WIDGET(m_resizer->get_widget()), 0);
@@ -558,7 +585,7 @@ void Window::show(GtkWidget* parent, bool horizontal)
 
 //-----------------------------------------------------------------------------
 
-void Window::save()
+void WhiskerMenu::Window::save()
 {
 	if (wm_settings->menu_width != m_geometry.width)
 	{
@@ -574,7 +601,7 @@ void Window::save()
 
 //-----------------------------------------------------------------------------
 
-void Window::on_context_menu_destroyed()
+void WhiskerMenu::Window::on_context_menu_destroyed()
 {
 	gdk_pointer_grab(gtk_widget_get_window(GTK_WIDGET(m_window)), true,
 			GdkEventMask(
@@ -586,7 +613,7 @@ void Window::on_context_menu_destroyed()
 
 //-----------------------------------------------------------------------------
 
-void Window::set_categories(const std::vector<SectionButton*>& categories)
+void WhiskerMenu::Window::set_categories(const std::vector<SectionButton*>& categories)
 {
 	for (std::vector<SectionButton*>::const_iterator i = categories.begin(), end = categories.end(); i != end; ++i)
 	{
@@ -601,7 +628,7 @@ void Window::set_categories(const std::vector<SectionButton*>& categories)
 
 //-----------------------------------------------------------------------------
 
-void Window::set_items()
+void WhiskerMenu::Window::set_items()
 {
 	m_search_results->set_menu_items(m_applications->get_view()->get_model());
 	m_favorites->set_menu_items();
@@ -614,7 +641,7 @@ void Window::set_items()
 
 //-----------------------------------------------------------------------------
 
-void Window::set_loaded()
+void WhiskerMenu::Window::set_loaded()
 {
 	gtk_spinner_stop(m_window_load_spinner);
 	gtk_widget_hide(m_window_load_contents);
@@ -624,7 +651,7 @@ void Window::set_loaded()
 
 //-----------------------------------------------------------------------------
 
-void Window::unset_items()
+void WhiskerMenu::Window::unset_items()
 {
 	m_search_results->unset_menu_items();
 	m_favorites->unset_menu_items();
@@ -633,7 +660,7 @@ void Window::unset_items()
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_enter_notify_event(GtkWidget*, GdkEvent* event)
+gboolean WhiskerMenu::Window::on_enter_notify_event(GtkWidget*, GdkEvent* event)
 {
 	GdkEventCrossing* crossing_event = reinterpret_cast<GdkEventCrossing*>(event);
 	if ((crossing_event->detail == GDK_NOTIFY_INFERIOR)
@@ -660,7 +687,7 @@ gboolean Window::on_enter_notify_event(GtkWidget*, GdkEvent* event)
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_leave_notify_event(GtkWidget*, GdkEvent* event)
+gboolean WhiskerMenu::Window::on_leave_notify_event(GtkWidget*, GdkEvent* event)
 {
 	GdkEventCrossing* crossing_event = reinterpret_cast<GdkEventCrossing*>(event);
 	if ((crossing_event->detail == GDK_NOTIFY_INFERIOR)
@@ -688,7 +715,7 @@ gboolean Window::on_leave_notify_event(GtkWidget*, GdkEvent* event)
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_button_press_event(GtkWidget*, GdkEvent* event)
+gboolean WhiskerMenu::Window::on_button_press_event(GtkWidget*, GdkEvent* event)
 {
 	// Hide menu if user clicks outside
 	GdkEventButton* button_event = reinterpret_cast<GdkEventButton*>(event);
@@ -704,7 +731,7 @@ gboolean Window::on_button_press_event(GtkWidget*, GdkEvent* event)
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_key_press_event(GtkWidget* widget, GdkEvent* event)
+gboolean WhiskerMenu::Window::on_key_press_event(GtkWidget* widget, GdkEvent* event)
 {
 	GdkEventKey* key_event = reinterpret_cast<GdkEventKey*>(event);
 
@@ -747,7 +774,7 @@ gboolean Window::on_key_press_event(GtkWidget* widget, GdkEvent* event)
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_key_press_event_after(GtkWidget* widget, GdkEvent* event)
+gboolean WhiskerMenu::Window::on_key_press_event_after(GtkWidget* widget, GdkEvent* event)
 {
 	// Pass unhandled key presses to search entry
 	GtkWidget* search_entry = GTK_WIDGET(m_search_entry);
@@ -762,7 +789,7 @@ gboolean Window::on_key_press_event_after(GtkWidget* widget, GdkEvent* event)
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_map_event(GtkWidget*, GdkEvent*)
+gboolean WhiskerMenu::Window::on_map_event(GtkWidget*, GdkEvent*)
 {
 	m_favorites->reset_selection();
 
@@ -784,7 +811,7 @@ gboolean Window::on_map_event(GtkWidget*, GdkEvent*)
 
 //-----------------------------------------------------------------------------
 
-gboolean Window::on_configure_event(GtkWidget*, GdkEvent* event)
+gboolean WhiskerMenu::Window::on_configure_event(GtkWidget*, GdkEvent* event)
 {
 	GdkEventConfigure* configure_event = reinterpret_cast<GdkEventConfigure*>(event);
 	if (configure_event->width && configure_event->height)
@@ -799,7 +826,57 @@ gboolean Window::on_configure_event(GtkWidget*, GdkEvent* event)
 
 //-----------------------------------------------------------------------------
 
-void Window::favorites_toggled()
+void WhiskerMenu::Window::on_screen_changed_event(GtkWidget* widget, GdkScreen*)
+{
+	GdkScreen* screen = gtk_widget_get_screen(widget);
+	GdkColormap* colormap = gdk_screen_get_rgba_colormap(screen);
+	if (!colormap || (m_opacity == 100))
+	{
+		colormap = gdk_screen_get_system_colormap(screen);
+		m_supports_alpha = false;
+	}
+	else
+	{
+		m_supports_alpha = true;
+	}
+	gtk_widget_set_colormap(widget, colormap);
+}
+
+//-----------------------------------------------------------------------------
+
+gboolean WhiskerMenu::Window::on_expose_event(GtkWidget* widget, GdkEventExpose*)
+{
+	if (!gtk_widget_get_realized(widget))
+	{
+		gtk_widget_realize(widget);
+	}
+
+	GtkStyle* style = gtk_widget_get_style(widget);
+	if (style == NULL)
+	{
+		return false;
+	}
+	GdkColor color = style->bg[GTK_STATE_NORMAL];
+
+	cairo_t* cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	if (m_supports_alpha)
+	{
+		cairo_set_source_rgba(cr, color.red / 65535.0, color.green / 65535.0, color.blue / 65535.0, wm_settings->menu_opacity / 100.0);
+	}
+	else
+	{
+		cairo_set_source_rgb(cr, color.red / 65535.0, color.green / 65535.0, color.blue / 65535.0);
+	}
+	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_paint(cr);
+	cairo_destroy(cr);
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+
+void WhiskerMenu::Window::favorites_toggled()
 {
 	m_favorites->reset_selection();
 	gtk_widget_hide(m_recent->get_widget());
@@ -810,7 +887,7 @@ void Window::favorites_toggled()
 
 //-----------------------------------------------------------------------------
 
-void Window::recent_toggled()
+void WhiskerMenu::Window::recent_toggled()
 {
 	m_recent->reset_selection();
 	gtk_widget_hide(m_favorites->get_widget());
@@ -821,7 +898,7 @@ void Window::recent_toggled()
 
 //-----------------------------------------------------------------------------
 
-void Window::category_toggled()
+void WhiskerMenu::Window::category_toggled()
 {
 	m_applications->reset_selection();
 	gtk_widget_hide(m_favorites->get_widget());
@@ -832,7 +909,7 @@ void Window::category_toggled()
 
 //-----------------------------------------------------------------------------
 
-void Window::show_favorites()
+void WhiskerMenu::Window::show_favorites()
 {
 	// Switch to favorites panel
 	m_favorites_button->set_active(true);
@@ -844,7 +921,7 @@ void Window::show_favorites()
 
 //-----------------------------------------------------------------------------
 
-void Window::show_default_page()
+void WhiskerMenu::Window::show_default_page()
 {
 	// Switch to favorites panel
 	m_default_button->set_active(true);
@@ -856,7 +933,7 @@ void Window::show_default_page()
 
 //-----------------------------------------------------------------------------
 
-void Window::search()
+void WhiskerMenu::Window::search()
 {
 	// Fetch search string
 	const gchar* text = gtk_entry_get_text(m_search_entry);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Graeme Gott <graeme@gottcode.org>
+ * Copyright (C) 2013, 2014 Graeme Gott <graeme@gottcode.org>
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ public:
 		CommandSwitchUser,
 		CommandLogOut,
 		CommandMenuEditor,
+		CommandProfile,
 		CountCommands
 	};
 	Command* command[CountCommands];
@@ -97,6 +98,7 @@ public:
 
 	int menu_width;
 	int menu_height;
+	int menu_opacity;
 
 	friend class Plugin;
 };

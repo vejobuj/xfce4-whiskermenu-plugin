@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Graeme Gott <graeme@gottcode.org>
+ * Copyright (C) 2014 Graeme Gott <graeme@gottcode.org>
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,57 +15,38 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WHISKERMENU_COMMAND_H
-#define WHISKERMENU_COMMAND_H
+#ifndef WHISKERMENU_PROFILE_PICTURE_H
+#define WHISKERMENU_PROFILE_PICTURE_H
 
 #include <gtk/gtk.h>
 
 namespace WhiskerMenu
 {
 
-class Command
+class Window;
+
+class ProfilePicture
 {
 public:
-	Command(const gchar* icon, const gchar* text, const gchar* command, const gchar* error_text);
-	~Command();
+	ProfilePicture(Window* window);
+	~ProfilePicture();
 
-	GtkWidget* get_button();
-	GtkWidget* get_menuitem();
-
-	const gchar* get() const
+	GtkWidget* get_widget() const
 	{
-		return m_command;
+		return m_alignment;
 	}
-
-	bool get_shown() const
-	{
-		return m_shown;
-	}
-
-	const gchar* get_text() const
-	{
-		return m_text;
-	}
-
-	void set(const gchar* command);
-
-	void set_shown(bool shown);
-
-	void check();
-
-	void activate();
 
 private:
-	GtkWidget* m_button;
-	GtkWidget* m_menuitem;
-	gchar* m_icon;
-	gchar* m_text;
-	gchar* m_command;
-	gchar* m_error_text;
-	int m_status;
-	bool m_shown;
+	void on_file_changed(GFileMonitor* monitor, GFile* file, GFile* other_file, GFileMonitorEvent event_type);
+	void on_button_press_event();
+
+private:
+	Window* m_window;
+	GtkWidget* m_alignment;
+	GtkWidget* m_image;
+	GFileMonitor* m_file_monitor;
 };
 
 }
 
-#endif // WHISKERMENU_COMMAND_H
+#endif // WHISKERMENU_PROFILE_PICTURE_H

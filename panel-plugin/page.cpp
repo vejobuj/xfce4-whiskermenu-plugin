@@ -122,7 +122,7 @@ void Page::item_activated(GtkTreeView* view, GtkTreePath* path, GtkTreeViewColum
 	if (element->get_type() == Launcher::Type)
 	{
 		Launcher* launcher = static_cast<Launcher*>(element);
-		if (remember_launcher(launcher))
+//		if (remember_launcher(launcher))
 		{
 			m_window->get_recent()->add(launcher);
 		}
